@@ -17,23 +17,41 @@ app.all("*", (req, res, next) => {
 app.get("/", (req, res) => {
   res.status(200).json({
     status: 200,
-    result: "Hello World",
+    result: "Share a meal application",
   });
 });
 
-app.post("/api/movie", (req, res) => {
-  let movie = req.body;
-  id++;
-  movie = {
-    id,
-    ...movie,
-  };
-  console.log(movie);
-  database.push(movie);
-  res.status(201).json({
-    status: 201,
-    result: database,
-  });
+
+app.post("/api/user", (req, res, next) => {
+  let user = req.body;
+  console.log(user);
+  let email = user.emailAdress;
+  if (email == undefined) {
+    res.status(400).json({
+      status: 400,
+      result: "Please enter a value for 'emailAdress'.",
+    });
+  } else {
+    let userArray = userDatabase.filter((item) => item.emailAdress == email);
+    if (userArray.length > 0) {
+      res.status(401).json({
+        status: 401,
+        result: `The email address ${email} is already in use, please use a different emailaddress or log in.`,
+      });
+    } else {
+      id++;
+      user = {
+        id,
+        ...user,
+      };
+      userDatabase.push(user);
+      console.log(userDatabase);
+      res.status(201).json({
+        status: 201,
+        result: `User with email address ${email} was added.`,
+      });
+    }
+  }
 });
 
 app.get("/api/movie/:movieId", (req, res, next) => {
