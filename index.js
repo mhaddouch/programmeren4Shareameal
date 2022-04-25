@@ -54,20 +54,33 @@ app.post("/api/user", (req, res, next) => {
   }
 });
 
-app.get("/api/movie/:movieId", (req, res, next) => {
-  const movieId = req.params.movieId;
-  console.log(`Movie met ID ${movieId} gezocht`);
-  let movie = database.filter((item) => item.id == movieId);
-  if (movie.length > 0) {
-    console.log(movie);
-    res.status(200).json({
-      status: 200,
-      result: movie,
+app.get("/api/user", (req, res) => {
+  res.status(201).json({
+    status: 201,
+    result: userDatabase,
+  });
+});
+
+app.get("/api/user/profile", (req, res) => {
+  res.status(401).json({
+    status: 401,
+    result: "This feature has not been implemented yet.",
+  });
+});
+
+app.get("/api/user/:userId", (req, res) => {
+  const userId = req.params.userId;
+  let userArray = userDatabase.filter((item) => item.id == userId);
+  if (userArray.length > 0) {
+    console.log(userArray);
+    res.status(201).json({
+      status: 201,
+      result: userArray,
     });
   } else {
-    res.status(401).json({
-      status: 401,
-      result: `Movie with ID ${movieId} not found`,
+    res.status(404).json({
+      status: 404,
+      result: `User with id ${userId} not found`,
     });
   }
 });
