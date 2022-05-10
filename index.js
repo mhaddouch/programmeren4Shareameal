@@ -1,22 +1,17 @@
-const text = require('body-parser/lib/types/text');
-const { contentType } = require('express/lib/response');
-const res = require('express/lib/response');
-const http = require('http');
 
+const http = require("http");
+// const hostname = "127.0.0.1";
 const port = process.env.PORT || 3000;
-const result = {
-code : 200,
-message :'Hello world',
-};
 
-const server = http.createServer((req,res)=>{
+const server = http.createServer((req, res) => {
   res.statusCode = 200;
-  res.setHeader('Content-Type','text/plain');
-  res.end(JSON.stringify(result));
-
+  res.setHeader("Content-Type", "text/html");
+  res.end("Hello World\n");
 });
 
+
+
 server.listen(port, () => {
-  console.log(`Serving running at http://${port}/`);
+  console.log(`Server running at http://${hostname}:${port}/`);
 });
 
