@@ -1,8 +1,5 @@
 const express = require("express");
 const app = express();
-
-const http = require("http");
-// const hostname = "127.0.0.1";
 const port = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
@@ -15,10 +12,11 @@ app.all("*", (req, res, next) => {
 });
 
 
-
-
-server.listen(port, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: 200,
+    result: "Hello World",
+  });
 });
 app.all("*", (req, res) => {
   res.status(401).json({
