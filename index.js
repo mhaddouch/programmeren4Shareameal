@@ -24,6 +24,12 @@ app.all("*", (req, res) => {
   });
 });
 
+//error handler
+app.use((err, req, res, next) => {
+  res.status(err.status).json(err);
+
+});
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });

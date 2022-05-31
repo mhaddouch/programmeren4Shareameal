@@ -14,12 +14,12 @@ let controller = {
             assert(typeof emailAddress === 'string','emailAdress must be a string.');
             assert(typeof password === 'string','password must be a string.');
             next();
-        } catch (error) {
-            console.log(error)
-            res.status(400).json({
-              status:400,
-              result: error.toString(),
-            });
+        } catch (err) {
+          const error={
+            status: 400,
+            result:err.message,
+          }
+            next(error);
         }
     },
 
@@ -61,7 +61,7 @@ let controller = {
             result: database,
         });
     },
-    getUserId:(req,res)=>{
+    getUserId:(req,res,next)=>{
         const userId = req.params.userId;
         let userArray = database.filter((item) => item.id == userId);
         if (userArray.length > 0) {
@@ -71,10 +71,11 @@ let controller = {
             result: userArray,
           });
         } else {
-          res.status(404).json({
+          const error = {
             status: 404,
             result: `User with id ${userId} not found`,
-          });
+          };
+          next(error);
         }
     }
 }
