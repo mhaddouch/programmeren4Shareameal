@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const userController = require('../controllers/user.controller')
 
 let database = [];
 let id =0;
@@ -12,44 +13,9 @@ router.get("/", (req, res) => {
   });
   
   
-  router.post("/api/user", (req, res, next) => {
-    let user = req.body;
-    console.log(user);
-    let email = user.emailAddress;
-    if (email == undefined) {
-      res.status(400).json({
-        status: 400,
-        result: "Please enter a value for 'emailAddress'.",
-      });
-    } else {
-      let userArray = database.filter((item) => item.emailAddress == email);
-      if (userArray.length > 0) {
-        res.status(401).json({
-          status: 401,
-          result: `The email address ${email} is already in use, please use a different emailaddress or log in.`,
-        });
-      } else {
-        id++;
-        user = {
-          id,
-          ...user,
-        };
-        database.push(user);
-        console.log(database);
-        res.status(201).json({
-          status: 201,
-          result: `User with email address ${email} was added.`,
-        });
-      }
-    }
-  });
+  router.post("/api/user",userController.addUser);
   
-  router.get("/api/user", (req, res) => {
-    res.status(201).json({
-      status: 201,
-      result: database,
-    });
-  });
+  router.get("/api/user", userController.getAllUsers);
   
   router.get("/api/user/profile", (req, res) => {
     res.status(401).json({
@@ -58,22 +24,7 @@ router.get("/", (req, res) => {
     });
   });
   
-  router.get("/api/user/:userId", (req, res) => {
-    const userId = req.params.userId;
-    let userArray = database.filter((item) => item.id == userId);
-    if (userArray.length > 0) {
-      console.log(userArray);
-      res.status(201).json({
-        status: 201,
-        result: userArray,
-      });
-    } else {
-      res.status(404).json({
-        status: 404,
-        result: `User with id ${userId} not found`,
-      });
-    }
-  });
+  router.get("/api/user/:userId", userController.getUserId);
   
   router.put("/api/user/:id", (req, res) => {
     const id = req.params.id;
