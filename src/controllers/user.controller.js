@@ -9,7 +9,7 @@ let controller = {
         let {firstName,lastName,emailAddress,password} = user;
 
         try {
-            assert(typeof firstName === 'string','firstName must be a string');
+            assert(typeof firstName === 'string','firstName must be a string.');
             assert(typeof lastName === 'string','lastName must be a string.');
             assert(typeof emailAddress === 'string','emailAdress must be a string.');
             assert(typeof password === 'string','password must be a string.');
