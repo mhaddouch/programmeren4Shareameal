@@ -25,15 +25,5 @@
   },
   "dependencies": {
     "body-parser": "^1.20.0",
-<<<<<<< HEAD
-    "express": "^4.18.0",
-    "heroku": "^7.60.2"
-=======
-    "express": "^4.18.1"
-<<<<<<< HEAD
->>>>>>> feature-testing
->>>>>>> 8670190462fda91aa1f74f46c1f826aaf85b9392
-=======
->>>>>>> feature-mysql
-  }
+    "express": "^4.18.0"  }
 }
