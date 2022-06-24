@@ -14,6 +14,7 @@ app.all("*", (req, res, next) => {
 app.use(userRouter);
 
 
+
 app.get("/", (req, res) => {
   res.status(200).json({
     status: 200,
