@@ -1,7 +1,5 @@
 const assert = require('assert');
 const dbconnection = require('../../database/dbconnection');
-let database = [];
-let id =0;
 
 
 let controller = {
