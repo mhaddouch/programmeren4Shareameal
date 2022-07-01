@@ -1,6 +1,28 @@
+process.env.DB_DATABASE = process.env.DB_DATABASE || 'share-a-meal-testdb'
+process.env.LOGLEVEL = 'warn'
+
+
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../index');
+
+
+chai.should()
+chai.use(chaiHttp)
+
+
+const assert = require('assert')
+require('dotenv').config()
+const dbconnection = require('../../src/database/dbconnection')
+
+
+/**
+ * Db queries to clear and fill the test database before each test.
+ */
+ const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
+ const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
+ const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
+ const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 let database = [];
 chai.should();
 chai.use(chaiHttp);
