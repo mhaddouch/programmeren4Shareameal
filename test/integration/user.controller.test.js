@@ -7,13 +7,20 @@ const chaiHttp = require('chai-http');
 const server = require('../../index');
 
 
-chai.should()
-chai.use(chaiHttp)
+
 
 
 const assert = require('assert')
 require('dotenv').config()
-const dbconnection = require('../../src/database/dbconnection')
+const dbconnection = require('../../database/dbconnection')
+
+
+
+
+
+let database = [];
+chai.should();
+chai.use(chaiHttp);
 
 
 /**
@@ -22,10 +29,9 @@ const dbconnection = require('../../src/database/dbconnection')
  const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
  const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
  const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
- const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
-let database = [];
-chai.should();
-chai.use(chaiHttp);
+ const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLEs
+
+
 
 // dit is zoals hoofdstukken van boeken
 describe('Manage users',()=>{
