@@ -11,10 +11,6 @@ require('dotenv').config()
 chai.should()
 chai.use(chaiHttp)
 
-
-
-
-
 const dbconnection = require('../../database/dbconnection');
 
 /**
