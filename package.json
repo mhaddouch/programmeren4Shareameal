@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon index.js",
     "dev": "nodemon index.js",
-    "test": "mocha test/**/*.test.js --exit"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Robin",
   "license": "ISC",
