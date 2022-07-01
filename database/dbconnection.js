@@ -1,4 +1,4 @@
-const mysql = require('mysql2')
+const mysql = require('mysql')
 const logger = require('../config/config').logger
 require('dotenv').config()
 
