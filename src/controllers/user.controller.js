@@ -24,6 +24,7 @@ let controller = {
         }
     },
 
+    
     addUser:(req,res)=>{
         let user = req.body;
     console.log(user);
