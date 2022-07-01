@@ -8,4 +8,6 @@ let myFunction = (param) => {
   console.log("my param = " + param);
 };
 
+
+
 myFunction(5);

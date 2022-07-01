@@ -1,7 +1,18 @@
-const assert = require('assert');
-const dbconnection = require('../../database/dbconnection');
-let database = [];
-let id =0;
+process.env.DB_DATABASE = process.env.DB_DATABASE || 'share-a-meal-testdb'
+process.env.LOGLEVEL = 'warn'
+
+const chai = require('chai')
+const chaiHttp = require('chai-http')
+const server = require('../../index')
+const assert = require('assert')
+require('dotenv').config()
+
+
+chai.should()
+chai.use(chaiHttp)
+
+const dbconnection = require('../database/dbconnection');
+
 
 
 let controller = {
