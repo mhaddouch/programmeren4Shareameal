@@ -14,9 +14,12 @@
     "nodemon": "^2.0.16"
   },
   "dependencies": {
+    "chai-http": "^4.3.0",
     "dotenv": "^16.0.1",
     "express": "^4.17.3",
+    "mocha": "^10.0.0",
     "mysql": "^2.18.1",
+    "mysql2": "^2.3.3",
     "start": "^5.1.0"
   }
 }
