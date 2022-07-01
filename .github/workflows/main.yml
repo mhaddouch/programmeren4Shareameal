@@ -7,7 +7,6 @@ on:
 
 jobs:
   deploy:
-  needs: integrationtests
     runs-on: ubuntu-latest
     environment:
       name: herokuShareAMeal # naam van mijn environment op GitHub
