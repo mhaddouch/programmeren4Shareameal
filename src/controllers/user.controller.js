@@ -11,7 +11,7 @@ require('dotenv').config()
 chai.should()
 chai.use(chaiHttp)
 
-const dbconnection = require('../../database/dbconnection');
+const dbconnection = require('../database/dbconnection');
 
 /**
  * Db queries to clear and fill the test database before each test.
