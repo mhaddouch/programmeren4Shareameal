@@ -17,15 +17,16 @@ const dbconnection = require('../database/dbconnection');
 
 let controller = {
     validateUser:(req,res,next)=>{
-        let user = req.body;
-        let {firstName,lastName,emailAdress,password} = user;
-
-        try {
-            assert(typeof firstName === 'string','firstName must be a string.');
-            assert(typeof lastName === 'string','lastName must be a string.');
-            assert(typeof emailAdress === 'string','emailAdress must be a string.');
-            assert(typeof password === 'string','password must be a string.');
-            next();
+      let user = req.body;
+      let { firstName, lastName, street, city, isActive, emailAdress, phoneNumber, password } = user;
+      try {
+          assert(typeof firstName === 'string', 'The firstname must be a string');
+          assert(typeof lastName === 'string', 'The lastName must be a string');
+          assert(typeof street === 'string', 'The street must be a string');
+          assert(typeof city === 'string', 'The city must be a string');
+          assert(typeof isActive === 'number', 'IsActive must be a number');
+          assert(typeof emailAdress === 'string', 'The emailAddress must be a string');
+          assert(typeof password === 'string', 'The password must a string');
         } catch (err) {
           const error={
             status: 400,

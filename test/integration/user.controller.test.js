@@ -41,25 +41,33 @@ describe('Manage users',()=>{
         });
     });
 
-    it(' Test case 201-1 When a required input is missing, a valide error should be returned',(done)=>{
+    it.only(' Test case 201-1 When a required input is missing, a valide error should be returned',(done)=>{
         chai
-        .request(server)
-        .post('/api/user')
+        .request(index)
+        .post("/api/user")
         .send({
-           // "firstName":"fefefefe",
-            "lastName":"dfdfrfrf",
-            "emailAddress":"453453",
-            "password": "frfrfr"
-            
+            firstName: G, 
+          lastName: "G",
+          isActive: 1,
+          street: "a",
+          city: "b",
+          roles: "editor",
+          emailAdress: "ng@avans.nl",
+          password: "D1mWW22!",
+          phoneNumber: "0651234567",
         })
-        .end((err,res)=>{
-            res.should.be.an('object')
-            let{status,result} =  res.body;
-            status.should.be.equals(400);
-            result.should.be.an('string').that.equals('firstName must be a string.');
+        .end((req, res) => {
+          res.should.be.an("object");
+          let { status, message } = res.body;
+          status.should.equals(400);
+          message.should.be
+            .a("string")
+            .that.equals("firstName must be a string");
+          done();
         });
-        done();
     });
+
+
     it('Testcase 201-2 When emailaddress is invalid, a valide error should be returned ',(done)=>{
         chai
         .request(server)
