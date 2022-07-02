@@ -1,6 +1,6 @@
 process.env.DB_DATABASE = process.env.DB_DATABASE || 'share-a-meal'
 process.env.LOGLEVEL = 'warn'
-
+const pool = require('../../dbconnection');
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const server = require('../../index')
@@ -72,17 +72,20 @@ let controller = {
       const {name , isActive} = req.query;
       console.log(`name, ${name} isActive, ${isActive}`)
 
-      let queryString = 'SELECT id,name FROM meal'
+      let queryString = 'SELECT `id`,`name` FROM `meal`'
       if(name || isActive){
-        queryString = queryString + 'WHERE'
+        queryString = queryString + ' WHERE '
         if(name){
-          queryString = queryString + 'name='+ name
+          queryString = queryString + `name='${name}'`
         }
       }
+      queryString+=";"
       console.log(queryString)
 
       dbconnection.getConnection(function(err, connection) {
-        if (err) throw err; // not connected!
+        if (err){
+          next(err)
+        }  // not connected!
        
         // Use the connection
         connection.query(queryString, function (error, results, fields) {
@@ -90,7 +93,7 @@ let controller = {
           connection.release();
        
           // Handle error after the release.
-          if (error) throw error;
+          if (error) next(error);
        
           // Don't use the connection here, it has been returned to the pool.
           console.log('result = ', results);
@@ -107,21 +110,33 @@ let controller = {
       });
     },
     getUserId:(req,res,next)=>{
-        const userId = req.params.userId;
-        let userArray = database.filter((item) => item.id == userId);
-        if (userArray.length > 0) {
-          console.log(userArray);
-          res.status(201).json({
-            status: 201,
-            result: userArray,
-          });
-        } else {
-          const error = {
-            status: 404,
-            result: `User with id ${userId} not found`,
-          };
-          next(error);
-        }
+      const userId = req.params.id;
+      pool.query(
+          `SELECT * FROM user WHERE id =${userId}`,
+          (err, results, fields) => {
+              const user = results[0];
+              if (err) {
+                  const error = {
+                      status: 400,
+                      message: 'User with provided Id does not exist',
+                  };
+                  next(error);
+              }
+
+              if (user != null) {
+                  res.status(200).json({
+                      status: 200,
+                      result: user,
+                  });
+              } else {
+                  const error = {
+                      status: 404,
+                      message: 'User with provided Id does not exist',
+                  };
+                  next(error);
+              }
+          }
+      );
     }
 }
 
