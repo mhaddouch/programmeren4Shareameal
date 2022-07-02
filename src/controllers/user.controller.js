@@ -68,6 +68,11 @@ let controller = {
     },
 
     getAllUsers:(req,res,next)=>{
+      const queryParams = req.query;
+      console.log(`queryParams = ${queryParams}`)
+
+
+
       dbconnection.getConnection(function(err, connection) {
         if (err) throw err; // not connected!
        
