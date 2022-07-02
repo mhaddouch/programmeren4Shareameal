@@ -68,16 +68,24 @@ let controller = {
     },
 
     getAllUsers:(req,res,next)=>{
-      const queryParams = req.query;
-      console.log(`queryParams = ${queryParams}`)
+     
+      const {name , isActive} = req.query;
+      console.log(`name, ${name} isActive, ${isActive}`)
 
-
+      let queryString = 'SELECT id,name FROM meal'
+      if(name || isActive){
+        queryString = queryString + 'WHERE'
+        if(name){
+          queryString = queryString + 'name='+ name
+        }
+      }
+      console.log(queryString)
 
       dbconnection.getConnection(function(err, connection) {
         if (err) throw err; // not connected!
        
         // Use the connection
-        connection.query('SELECT id,name FROM meal', function (error, results, fields) {
+        connection.query(queryString, function (error, results, fields) {
           // When done with the connection, release it.
           connection.release();
        
