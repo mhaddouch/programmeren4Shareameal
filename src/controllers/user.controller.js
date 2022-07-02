@@ -85,6 +85,7 @@ let controller = {
         )
 
     },
+    
 
     getAllUsers:(req,res,next)=>{
       logger.debug(`getAll aangeroepen. req.userId = ${req.userId}`)
@@ -157,7 +158,86 @@ let controller = {
         }
       }
     );
+    },
+    updateUser:(req,res,next)=>{
+      const userId = req.params.userId;
+    let user = req.body;
+
+    dbconnection.getConnection(function(err, connection) {
+      if (err){
+        next(err)
+      }  // not connected!
+     
+
+      connection.query(
+      "UPDATE user SET `firstName` = ?, `lastName` = ?, `city` = ?, `street` = ?, `password` = ?, `isActive` = ?, `phoneNumber` = ? WHERE `id` = ?;",
+      [
+        user.firstName,
+        user.lastName,
+        user.street,
+        user.city,
+        user.password,
+        user.phoneNumber,
+        user.roles,
+        userId,
+      ],
+      function (error, results, fields) {
+        if (error) {
+          logger.error("Could not edit user: " + error);
+          const err = {
+            status: 409,
+            message: "User not eddited",
+          };
+
+          next(err);
+        } else {
+          logger.info("Succesfully added user: " + user);
+          res.status(200).json({
+            status: 200,
+            result: user,
+          });
+        }
+      }
+    );
     }
+  )},
+
+  deleteUser: (req, res, next) => {
+    let user;
+    const userId = req.params.userId;
+    dbconnection.query(
+      `SELECT * FROM user WHERE id = ${userId};`,
+      function (error, results, fields) {
+        if (error) throw error;
+        logger.log("#result = " + results.length);
+        user = results;
+      }
+    );
+
+    dbconnection.query(
+      `DELETE FROM user WHERE id = ${userId} ;`,
+      function (error, results, fields) {
+        if (error) throw error;
+
+        if (user.length > 0) {
+          logger.log("#result = " + results.length);
+          res.status(200).json({
+            statusCode: 200,
+            result: user,
+          });
+        } else {
+          const err = {
+            status: 400,
+            message: "User does not exist",
+          };
+          next(err);
+        }
+      }
+    );
+  },
+
+
 }
+
 
 module.exports = controller;
