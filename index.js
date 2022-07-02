@@ -3,6 +3,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
 const userRouter = require('./src/routes/user.routes');
+const logger = require("./src/config/config").logger
+
 app.use(bodyParser.json());
 let database = [];
 let id = 0;
@@ -29,9 +31,11 @@ app.all("*", (req, res) => {
 });
 
 //error handler
+// Hier moet je nog je Express errorhandler toevoegen.
+//error handler
 app.use((err, req, res, next) => {
+  logger.error(err);
   res.status(err.status).json(err);
-
 });
 
 app.listen(port, () => {

@@ -1,4 +1,4 @@
-process.env.DB_DATABASE = process.env.DB_DATABASE || 'share-a-meal-testdb'
+process.env.DB_DATABASE = process.env.DB_DATABASE || 'share-a-meal'
 process.env.LOGLEVEL = 'warn'
 
 const chai = require('chai')
@@ -6,7 +6,7 @@ const chaiHttp = require('chai-http')
 const server = require('../../index')
 const assert = require('assert')
 require('dotenv').config()
-
+const logger = require('../config/config').logger
 
 chai.should()
 chai.use(chaiHttp)
@@ -18,12 +18,12 @@ const dbconnection = require('../database/dbconnection');
 let controller = {
     validateUser:(req,res,next)=>{
         let user = req.body;
-        let {firstName,lastName,emailAddress,password} = user;
+        let {firstName,lastName,emailAdress,password} = user;
 
         try {
             assert(typeof firstName === 'string','firstName must be a string.');
             assert(typeof lastName === 'string','lastName must be a string.');
-            assert(typeof emailAddress === 'string','emailAdress must be a string.');
+            assert(typeof emailAdress === 'string','emailAdress must be a string.');
             assert(typeof password === 'string','password must be a string.');
             next();
         } catch (err) {
@@ -35,49 +35,92 @@ let controller = {
         }
     },
 
-    addUser:(req,res)=>{
-        let user = req.body;
-    console.log(user);
-    let email = user.emailAddress;
-    if (email == undefined) {
-      res.status(400).json({
-        status: 400,
-        result: "Please enter a value for 'emailAddress'.",
-      });
-    } else {
-      let userArray = database.filter((item) => item.emailAddress == email);
-      if (userArray.length > 0) {
-        res.status(401).json({
-          status: 401,
-          result: `The email address ${email} is already in use, please use a different emailaddress or log in.`,
-        });
-      } else {
-        id++;
-        user = {
-          id,
-          ...user,
-        };
-        database.push(user);
-        console.log(database);
-        res.status(201).json({
-          status: 201,
-          result: `User with email address ${email} was added.`,
-        });
-      }
-    }
+    addUser:(req,res,next)=>{
+
+      let user = req.body;
+      logger.debug(`getAll aangeroepen. req.userId = ${req.userId}`)
+ 
+          
+        dbconnection.getConnection(function(err, connection) {
+          if (err){
+            next(err)
+          }  // not connected!
+         
+          // Use the connection
+          connection.query(
+            "INSERT INTO user " +
+              "(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +
+              "VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+              user.firstName,
+              user.lastName,
+              user.street,
+              user.city,
+              user.password,
+              user.emailAdress,
+              user.phoneNumber,
+              user.roles,
+            ],
+            function (error, results, fields) {
+              if (error) {
+                logger.error("Could not add user: " + error);
+                const err = {
+                  status: 409,
+                  message: "Email not unique",
+                };
+      
+                next(err);
+              } else {
+                logger.debug("added user to database: " + user);
+                user.userId = results.insertId;
+                res.status(200).json({
+                  status: 200,
+                  message: "added user to database",
+                  result: user,
+                });
+              }
+            }
+          );
+        }
+        )
+
     },
+    
 
     getAllUsers:(req,res,next)=>{
+      logger.debug(`getAll aangeroepen. req.userId = ${req.userId}`)
+
+      const queryParams = req.query
+      logger.debug(queryParams)
+
+      let { name, isActive } = req.query
+      let queryString = 'SELECT `id`, `firstName` FROM `user`'
+      if (name || isActive) {
+          queryString += ' WHERE '
+          if (name) {
+              queryString += '`firstName` LIKE ?'
+              name = '%' + name + '%'
+          }
+          if (name && isActive) queryString += ' AND '
+          if (isActive) {
+              queryString += '`isActive` = ?'
+          }
+      }
+      queryString += ';'
+      logger.debug(`queryString = ${queryString}`)
+
       dbconnection.getConnection(function(err, connection) {
-        if (err) throw err; // not connected!
+        if (err){
+          next(err)
+        }  // not connected!
        
         // Use the connection
-        connection.query('SELECT id,name FROM meal', function (error, results, fields) {
+        connection.query(queryString, function (error, results, fields) {
           // When done with the connection, release it.
           connection.release();
        
           // Handle error after the release.
-          if (error) throw error;
+          if (error) next(error);
        
           // Don't use the connection here, it has been returned to the pool.
           console.log('result = ', results);
@@ -94,22 +137,107 @@ let controller = {
       });
     },
     getUserId:(req,res,next)=>{
-        const userId = req.params.userId;
-        let userArray = database.filter((item) => item.id == userId);
-        if (userArray.length > 0) {
-          console.log(userArray);
-          res.status(201).json({
-            status: 201,
-            result: userArray,
+      const userId = req.params.userId;
+    dbconnection.query(
+      `SELECT * FROM user WHERE id =${userId}`,
+      (err, results, fields) => {
+        if (err) throw err;
+        if (results.length > 0) {
+          logger.info("Found user: " + results);
+          res.status(200).json({
+            status: 200,
+            result: results,
           });
         } else {
+          logger.error("Could not find user: " + err);
           const error = {
             status: 404,
-            result: `User with id ${userId} not found`,
+            message: "User does not exist",
           };
           next(error);
         }
+      }
+    );
+    },
+    updateUser:(req,res,next)=>{
+      const userId = req.params.userId;
+    let user = req.body;
+
+    dbconnection.getConnection(function(err, connection) {
+      if (err){
+        next(err)
+      }  // not connected!
+     
+
+      connection.query(
+      "UPDATE user SET `firstName` = ?, `lastName` = ?, `city` = ?, `street` = ?, `password` = ?, `isActive` = ?, `phoneNumber` = ? WHERE `id` = ?;",
+      [
+        user.firstName,
+        user.lastName,
+        user.street,
+        user.city,
+        user.password,
+        user.phoneNumber,
+        user.roles,
+        userId,
+      ],
+      function (error, results, fields) {
+        if (error) {
+          logger.error("Could not edit user: " + error);
+          const err = {
+            status: 409,
+            message: "User not eddited",
+          };
+
+          next(err);
+        } else {
+          logger.info("Succesfully added user: " + user);
+          res.status(200).json({
+            status: 200,
+            result: user,
+          });
+        }
+      }
+    );
     }
+  )},
+
+  deleteUser: (req, res, next) => {
+    let user;
+    const userId = req.params.userId;
+    dbconnection.query(
+      `SELECT * FROM user WHERE id = ${userId};`,
+      function (error, results, fields) {
+        if (error) throw error;
+        logger.log("#result = " + results.length);
+        user = results;
+      }
+    );
+
+    dbconnection.query(
+      `DELETE FROM user WHERE id = ${userId} ;`,
+      function (error, results, fields) {
+        if (error) throw error;
+
+        if (user.length > 0) {
+          logger.log("#result = " + results.length);
+          res.status(200).json({
+            statusCode: 200,
+            result: user,
+          });
+        } else {
+          const err = {
+            status: 400,
+            message: "User does not exist",
+          };
+          next(err);
+        }
+      }
+    );
+  },
+
+
 }
+
 
 module.exports = controller;
