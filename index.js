@@ -3,6 +3,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
 const userRouter = require('./src/routes/user.routes');
+const logger = require("./src/config/config").logger
+
 app.use(bodyParser.json());
 let database = [];
 let id = 0;

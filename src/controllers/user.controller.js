@@ -1,6 +1,6 @@
 process.env.DB_DATABASE = process.env.DB_DATABASE || 'share-a-meal'
 process.env.LOGLEVEL = 'warn'
-const pool = require('../../dbconnection');
+
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const server = require('../../index')
@@ -35,52 +35,67 @@ let controller = {
         }
     },
 
-    addUser:(req,res)=>{
-        let user = req.body;
-    console.log(user);
-    let email = user.emailAddress;
-    if (email == undefined) {
-      res.status(400).json({
-        status: 400,
-        result: "Please enter a value for 'emailAddress'.",
-      });
-    } else {
-      let userArray = database.filter((item) => item.emailAddress == email);
-      if (userArray.length > 0) {
-        res.status(401).json({
-          status: 401,
-          result: `The email address ${email} is already in use, please use a different emailaddress or log in.`,
-        });
-      } else {
-        id++;
-        user = {
-          id,
-          ...user,
-        };
-        database.push(user);
-        console.log(database);
-        res.status(201).json({
-          status: 201,
-          result: `User with email address ${email} was added.`,
-        });
-      }
-    }
+    addUser:(req,res,next)=>{
+      let user = req.body;
+
+      pool.query(
+        "INSERT INTO user " +
+          "(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +
+          "VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          user.firstName,
+          user.lastName,
+          user.street,
+          user.city,
+          user.password,
+          user.emailAdress,
+          user.phoneNumber,
+          user.roles,
+        ],
+        function (error, results, fields) {
+          if (error) {
+            logger.error("Could not add user: " + error);
+            const err = {
+              status: 409,
+              message: "Email not unique",
+            };
+  
+            next(err);
+          } else {
+            logger.debug("Succesfully added user to database: " + user);
+            user.userId = results.insertId;
+            res.status(200).json({
+              status: 200,
+              message: "Succesfully added user to database",
+              result: user,
+            });
+          }
+        }
+      );
+     
     },
 
     getAllUsers:(req,res,next)=>{
-     
-      const {name , isActive} = req.query;
-      console.log(`name, ${name} isActive, ${isActive}`)
+      logger.debug(`getAll aangeroepen. req.userId = ${req.userId}`)
 
-      let queryString = 'SELECT `id`,`name` FROM `meal`'
-      if(name || isActive){
-        queryString = queryString + ' WHERE '
-        if(name){
-          queryString = queryString + `name='${name}'`
-        }
+      const queryParams = req.query
+      logger.debug(queryParams)
+
+      let { name, isActive } = req.query
+      let queryString = 'SELECT `id`, `name` FROM `meal`'
+      if (name || isActive) {
+          queryString += ' WHERE '
+          if (name) {
+              queryString += '`name` LIKE ?'
+              name = '%' + name + '%'
+          }
+          if (name && isActive) queryString += ' AND '
+          if (isActive) {
+              queryString += '`isActive` = ?'
+          }
       }
-      queryString+=";"
-      console.log(queryString)
+      queryString += ';'
+      logger.debug(`queryString = ${queryString}`)
 
       dbconnection.getConnection(function(err, connection) {
         if (err){
@@ -110,33 +125,27 @@ let controller = {
       });
     },
     getUserId:(req,res,next)=>{
-      const userId = req.params.id;
-      pool.query(
-          `SELECT * FROM user WHERE id =${userId}`,
-          (err, results, fields) => {
-              const user = results[0];
-              if (err) {
-                  const error = {
-                      status: 400,
-                      message: 'User with provided Id does not exist',
-                  };
-                  next(error);
-              }
-
-              if (user != null) {
-                  res.status(200).json({
-                      status: 200,
-                      result: user,
-                  });
-              } else {
-                  const error = {
-                      status: 404,
-                      message: 'User with provided Id does not exist',
-                  };
-                  next(error);
-              }
-          }
-      );
+      const userId = req.params.userId;
+    dbconnection.query(
+      `SELECT * FROM user WHERE id =${userId}`,
+      (err, results, fields) => {
+        if (err) throw err;
+        if (results.length > 0) {
+          logger.info("Found user: " + results);
+          res.status(200).json({
+            status: 200,
+            result: results,
+          });
+        } else {
+          logger.error("Could not find user: " + err);
+          const error = {
+            status: 404,
+            message: "User does not exist",
+          };
+          next(error);
+        }
+      }
+    );
     }
 }
 
