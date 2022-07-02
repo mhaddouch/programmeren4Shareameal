@@ -18,12 +18,12 @@ const dbconnection = require('../database/dbconnection');
 let controller = {
     validateUser:(req,res,next)=>{
         let user = req.body;
-        let {firstName,lastName,emailAddress,password} = user;
+        let {firstName,lastName,emailAdress,password} = user;
 
         try {
             assert(typeof firstName === 'string','firstName must be a string.');
             assert(typeof lastName === 'string','lastName must be a string.');
-            assert(typeof emailAddress === 'string','emailAdress must be a string.');
+            assert(typeof emailAdress === 'string','emailAdress must be a string.');
             assert(typeof password === 'string','password must be a string.');
             next();
         } catch (err) {
@@ -36,43 +36,54 @@ let controller = {
     },
 
     addUser:(req,res,next)=>{
-      let user = req.body;
 
-      pool.query(
-        "INSERT INTO user " +
-          "(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +
-          "VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          user.firstName,
-          user.lastName,
-          user.street,
-          user.city,
-          user.password,
-          user.emailAdress,
-          user.phoneNumber,
-          user.roles,
-        ],
-        function (error, results, fields) {
-          if (error) {
-            logger.error("Could not add user: " + error);
-            const err = {
-              status: 409,
-              message: "Email not unique",
-            };
-  
-            next(err);
-          } else {
-            logger.debug("Succesfully added user to database: " + user);
-            user.userId = results.insertId;
-            res.status(200).json({
-              status: 200,
-              message: "Succesfully added user to database",
-              result: user,
-            });
-          }
+      let user = req.body;
+      logger.debug(`getAll aangeroepen. req.userId = ${req.userId}`)
+ 
+          
+        dbconnection.getConnection(function(err, connection) {
+          if (err){
+            next(err)
+          }  // not connected!
+         
+          // Use the connection
+          connection.query(
+            "INSERT INTO user " +
+              "(firstName, lastName, street, city, password, emailAdress, phoneNumber, roles) " +
+              "VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+              user.firstName,
+              user.lastName,
+              user.street,
+              user.city,
+              user.password,
+              user.emailAdress,
+              user.phoneNumber,
+              user.roles,
+            ],
+            function (error, results, fields) {
+              if (error) {
+                logger.error("Could not add user: " + error);
+                const err = {
+                  status: 409,
+                  message: "Email not unique",
+                };
+      
+                next(err);
+              } else {
+                logger.debug("added user to database: " + user);
+                user.userId = results.insertId;
+                res.status(200).json({
+                  status: 200,
+                  message: "added user to database",
+                  result: user,
+                });
+              }
+            }
+          );
         }
-      );
-     
+        )
+
     },
 
     getAllUsers:(req,res,next)=>{
@@ -82,11 +93,11 @@ let controller = {
       logger.debug(queryParams)
 
       let { name, isActive } = req.query
-      let queryString = 'SELECT `id`, `name` FROM `meal`'
+      let queryString = 'SELECT `id`, `firstName` FROM `user`'
       if (name || isActive) {
           queryString += ' WHERE '
           if (name) {
-              queryString += '`name` LIKE ?'
+              queryString += '`firstName` LIKE ?'
               name = '%' + name + '%'
           }
           if (name && isActive) queryString += ' AND '

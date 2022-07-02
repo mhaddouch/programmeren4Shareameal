@@ -32,13 +32,11 @@ app.all("*", (req, res) => {
 
 //error handler
 // Hier moet je nog je Express errorhandler toevoegen.
+//error handler
 app.use((err, req, res, next) => {
-  logger.debug('Error handler called.')
-  res.status(500).json({
-      statusCode: 500,
-      message: err.toString(),
-  })
-})
+  logger.error(err);
+  res.status(err.status).json(err);
+});
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
