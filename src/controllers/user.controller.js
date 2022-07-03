@@ -20,17 +20,17 @@ let controller = {
       let user = req.body;
       let { firstName, lastName, street, city, isActive, emailAdress, phoneNumber, password } = user;
       try {
-          assert(typeof firstName === 'string', 'The firstname must be a string');
-          assert(typeof lastName === 'string', 'The lastName must be a string');
-          assert(typeof street === 'string', 'The street must be a string');
-          assert(typeof city === 'string', 'The city must be a string');
+          assert(typeof firstName === 'string', 'firstName must be a string');
+          assert(typeof lastName === 'string', 'lastName must be a string');
+          assert(typeof street === 'string', 'street must be a string');
+          assert(typeof city === 'string', 'city must be a string');
           assert(typeof isActive === 'number', 'IsActive must be a number');
-          assert(typeof emailAdress === 'string', 'The emailAddress must be a string');
-          assert(typeof password === 'string', 'The password must a string');
+          assert(typeof emailAdress === 'string', 'emailAddress must be a string');
+          assert(typeof password === 'string', 'password must be a string');
         } catch (err) {
           const error={
             status: 400,
-            result:err.message,
+            message: err.message,
           }
             next(error);
         }
@@ -88,54 +88,52 @@ let controller = {
     },
     
 
-    getAllUsers:(req,res,next)=>{
+    getAllUsers: (req, res) => {
       logger.debug(`getAll aangeroepen. req.userId = ${req.userId}`)
 
-      const queryParams = req.query
-      logger.debug(queryParams)
+        const queryParams = req.query
+        logger.debug(queryParams)
 
-      let { name, isActive } = req.query
-      let queryString = 'SELECT `id`, `firstName` FROM `user`'
-      if (name || isActive) {
-          queryString += ' WHERE '
-          if (name) {
-              queryString += '`firstName` LIKE ?'
-              name = '%' + name + '%'
-          }
-          if (name && isActive) queryString += ' AND '
-          if (isActive) {
-              queryString += '`isActive` = ?'
-          }
-      }
-      queryString += ';'
-      logger.debug(`queryString = ${queryString}`)
+        let { name, isActive } = req.query
+        let queryString = 'SELECT `id`, `name` FROM `meal`'
+        if (name || isActive) {
+            queryString += ' WHERE '
+            if (name) {
+                queryString += '`name` LIKE ?'
+                name = '%' + name + '%'
+            }
+            if (name && isActive) queryString += ' AND '
+            if (isActive) {
+                queryString += '`isActive` = ?'
+            }
+        }
+        queryString += ';'
+        logger.debug(`queryString = ${queryString}`)
 
-      dbconnection.getConnection(function(err, connection) {
-        if (err){
-          next(err)
-        }  // not connected!
-       
-        // Use the connection
-        connection.query(queryString, function (error, results, fields) {
-          // When done with the connection, release it.
-          connection.release();
-       
-          // Handle error after the release.
-          if (error) next(error);
-       
-          // Don't use the connection here, it has been returned to the pool.
-          console.log('result = ', results);
-          res.status(200).json({
-            statusCode:200,
-            results:results
-          });
-          
-         // pool.end((err)=>{
-           // console.log('pool was closed.')
-        //});
-                
-        });
-      });
+        dbconnection.getConnection(function (err, connection) {
+            if (err) next(err) // not connected!
+
+            // Use the connection
+            connection.query(
+                queryString,
+                [name, isActive],
+                function (error, results, fields) {
+                    // When done with the connection, release it.
+                    connection.release()
+
+                    // Handle error after the release.
+                    if (error) next(error)
+
+                    // Don't use the connection here, it has been returned to the pool.
+                    logger.debug('#results = ', results.length)
+                    res.status(200).json({
+                        status: 200,
+                        result: results,
+                    })
+                }
+            )
+            
+        })
     },
     getUserId:(req,res,next)=>{
       const userId = req.params.userId;
@@ -157,8 +155,9 @@ let controller = {
           };
           next(error);
         }
-      }
-    );
+      });
+
+
     },
     updateUser:(req,res,next)=>{
       const userId = req.params.userId;

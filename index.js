@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
+const dbconnection = require("./src/database/dbconnection");
 const bodyParser = require('body-parser');
 const userRouter = require('./src/routes/user.routes');
 const logger = require("./src/config/config").logger
@@ -37,6 +38,7 @@ app.use((err, req, res, next) => {
   logger.error(err);
   res.status(err.status).json(err);
 });
+
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
