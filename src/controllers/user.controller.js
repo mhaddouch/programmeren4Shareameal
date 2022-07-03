@@ -89,51 +89,38 @@ let controller = {
     
 
     getAllUsers: (req, res) => {
-      logger.debug(`getAll aangeroepen. req.userId = ${req.userId}`)
-
-        const queryParams = req.query
-        logger.debug(queryParams)
-
-        let { name, isActive } = req.query
-        let queryString = 'SELECT `id`, `name` FROM `meal`'
-        if (name || isActive) {
-            queryString += ' WHERE '
-            if (name) {
-                queryString += '`name` LIKE ?'
-                name = '%' + name + '%'
-            }
-            if (name && isActive) queryString += ' AND '
-            if (isActive) {
-                queryString += '`isActive` = ?'
-            }
+      const active = req.query.isActive;
+      const name = req.query.firstName;
+      let searchQuery = ";";
+      let isActive = 1;
+  
+      if (active != undefined) {
+        if (active != "true") {
+          isActive = 0;
         }
-        queryString += ';'
-        logger.debug(`queryString = ${queryString}`)
-
-        dbconnection.getConnection(function (err, connection) {
-            if (err) next(err) // not connected!
-
-            // Use the connection
-            connection.query(
-                queryString,
-                [name, isActive],
-                function (error, results, fields) {
-                    // When done with the connection, release it.
-                    connection.release()
-
-                    // Handle error after the release.
-                    if (error) next(error)
-
-                    // Don't use the connection here, it has been returned to the pool.
-                    logger.debug('#results = ', results.length)
-                    res.status(200).json({
-                        status: 200,
-                        result: results,
-                    })
-                }
-            )
-            
-        })
+        searchQuery = `WHERE isActive = ${isActive};`;
+      }
+  
+      if (name != undefined) {
+        searchQuery = `WHERE firstName LIKE('%${name}%');`;
+      }
+  
+      if (active != undefined && name != undefined) {
+        searchQuery = `WHERE isActive = ${isActive} AND firstName LIKE('%${name}%');`;
+      }
+      logger.info("Searchquery: " + searchQuery);
+  
+      dbconnection.query(
+        "SELECT * FROM user " + searchQuery,
+        function (error, results, fields) {
+          if (error) throw error;
+          logger.info("Amount of users: " + results.length);
+          res.status(200).json({
+            status: 200,
+            result: results,
+          });
+        }
+      );
     },
     getUserId:(req,res,next)=>{
       const userId = req.params.userId;
