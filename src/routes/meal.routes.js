@@ -2,6 +2,8 @@ const express = require('express');
 const { getUserProfile } = require('../controllers/meal.controller');
 const router = express.Router();
 const mealController = require('../controllers/meal.controller');
+const authController = require('../controllers/auth.controller');
+const { validateToken } = require("../controllers/auth.controller");
 
 router.get("/", (req, res) => {
     res.status(200).json({
@@ -10,7 +12,7 @@ router.get("/", (req, res) => {
     });
   });
   
- router.post("/api/meal",mealController.validateMeal,mealController.addMeal);
+ router.post("/api/meal",validateToken,mealController.validateMeal,mealController.addMeal);
 // router.post("/api/meal",mealController.addMeal);
   
   //router.get("/api/meal", userController.getAllUsers);
@@ -22,10 +24,10 @@ router.get("/", (req, res) => {
     });
   }); */
   
-  router.get("/api/meal/:mealId", mealController.getMealId);
+  router.get("/api/meal/:mealId",validateToken, mealController.getMealId);
   
-  router.put("/api/meal/:id", mealController.updateMeal);
+  router.put("/api/meal/:mealId",validateToken, mealController.updateMeal);
   
-  router.delete("/api/meal/:mealId", mealController.deleteMeal);
+  router.delete("/api/meal/:mealId",validateToken, mealController.deleteMeal);
 
   module.exports = router;

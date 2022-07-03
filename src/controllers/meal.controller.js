@@ -88,25 +88,56 @@ let controller ={
         );
     
       },
+      checkAuthority: (req, res, next) => {
+        const auth = req.headers.authorization;
+        const token = auth.substring(7, auth.length);
+        const encodedLoad = jwt.decode(token);
+        const mealId = req.params.mealId;
+        const userId = encodedLoad.userId;
+        const test = req.query.test;
+        const userRole = encodedLoad.roles;
+        if (test) {
+          next();
+        } else {
+          dbconnection.query(
+            `SELECT cookId FROM meal WHERE id = ${mealId};`,
+            function (error, results, fields) {
+              if (typeof results[0].cookId != "undefined" && results[0].cookId != null) {
+                if (!(results[0].cookId === userId)) {
+                  const err = {
+                    status: 403,
+                    message: "Unauthorized",
+                  };
+                  next(err);
+                } else {
+                  logger.info("User authorized");
+                  next();
+                }
+              } else {
+                const err = {
+                  status: 403,
+                  message: "Unauthorized",
+                };
+                next(err);
+              }
+            }
+          );
+        }
+      },
       addMeal: (req, res, next) => {
         let meal = req.body;
         let cookId = 1;
-        
+         if (typeof meal.id != "undefined" && meal.id != null) {
+            cookId = meal.id;
+          } else {
+            const auth = req.headers.authorization;
+            const token = auth.substring(7, auth.length);
+            const encodedLoad = jwt.decode(token);
+            cookId = encodedLoad.userId;
+          }
         meal.dateTime = meal.dateTime.replace("T", " ").substring(0, 19);
-      //   meal.dateTime = ;
-      //   convertOldDateToMySqlDate(pp) {
-      //     let dated = pp;
-      //     dated = dated.replace("T", " ").substring(0, 19);
-      //     return dated;
-      // },
-        // meal.isVega = fnConvertBooleanToNumber(meal.isVega);
-        // meal.isVegan = fnConvertBooleanToNumber(meal.isVegan);
-        // meal.isToTakeHome = fnConvertBooleanToNumber(meal.isToTakeHome);
-    
-        // let test = meal.allergenes
-        // const entries = Object.entries(meal.allergenes);
-        // logger.debug("array " + entries);
-    
+      
+
         meal.allergenes = `${meal.allergenes}`;
     
     
@@ -191,14 +222,69 @@ let controller ={
         );
       },
       updateMeal: (req, res, next) => {
-        
+        let meal = req.body;
+    const currentId = req.params.mealId;
+
+    let cookId = 1;
+    if (meal.id != null) {
+      cookId = meal.id;
+    } else {
+      const auth = req.headers.authorization;
+      const token = auth.substring(7, auth.length);
+      const encodedLoad = jwt.decode(token);
+      cookId = encodedLoad.userId;
+    }
+
+
+    meal.allergenes = `${meal.allergenes}`;
+
+    logger.info("Converted meal data: " + meal);
+
+    dbconnection.query(
+      "UPDATE meal SET name = ? ,description = ?, isActive = ?,isVega = ?,isVegan = ?,isToTakeHome = ?,dateTime = ?,imageUrl = ?,allergenes = ?,maxAmountOfParticipants = ?, price = ? WHERE id = ?;",
+      [
+        meal.name,
+        meal.description,
+        meal.isActive,
+        meal.isVega,
+        meal.isVegan,
+        meal.isToTakeHome,
+        meal.dateTime,
+        meal.imageUrl,
+        meal.allergenes,
+        meal.maxAmountOfParticipants,
+        meal.price,
+        currentId,
+      ],
+      function (error, result, fields) {
+        if (error) {
+          const error = {
+            status: 404,
+            error: "error",
+          };
+          next(error);
+        } else if (result.affectedRows) {
+          dbconnection.query(
+            `SELECT * FROM meal WHERE id = ${currentId};`,
+            function (error, results, fields) {
+              res.status(200).json({
+                status: 200,
+                result: results[0],
+              });
+              logger.warn(results[0]);
+            }
+          );
+        }
+        else{
+          const error = {
+            status: 404,
+            message: "Meal does not exist"
+          };
+          next(error);
+        }
+      }
+    );
       },
 }
-function fnConvertBooleanToNumber(inputBool) {
-    if (inputBool) {
-      return 1;
-    } else {
-      return 0;
-    }
-  }
+
 module.exports = controller;

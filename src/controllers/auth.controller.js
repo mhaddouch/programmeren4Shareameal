@@ -64,7 +64,7 @@ module.exports = {
                                         )
                                         res.status(200).json({
                                             status: 200,
-                                            message: " user log",
+                                            message: " user log "+token,
                                             results: { ...userinfo, token },
                                         })
                                     }
@@ -115,12 +115,14 @@ module.exports = {
     //
     validateToken(req, res, next) {
         logger.info('validateToken called')
-        // logger.trace(req.headers)
+        //logger.trace(req.headers)
         // The headers should contain the authorization-field with value 'Bearer [token]'
         const authHeader = req.headers.authorization
         if (!authHeader) {
             logger.warn('Authorization header missing!')
             res.status(401).json({
+                status:401,
+                message:"Authorization",
                 error: 'Authorization header missing!',
                 datetime: new Date().toISOString(),
             })
@@ -132,6 +134,8 @@ module.exports = {
                 if (err) {
                     logger.warn('Not authorized')
                     res.status(401).json({
+                        status:401,
+                        message:"error",
                         error: 'Not authorized',
                         datetime: new Date().toISOString(),
                     })
