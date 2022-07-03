@@ -13,7 +13,8 @@ router.get("/", (req, res) => {
   });
   
   
-  router.post("/api/user",userController.validateUser,userController.addUser);
+   router.post("/api/user",userController.validateUser);
+  router.post("/api/user",userController.addUser);
 
   
   router.get("/api/user", userController.getAllUsers);
