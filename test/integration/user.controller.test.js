@@ -280,34 +280,6 @@ describe("TC-202 Overview of all users", () => {
           done();
         });
     }); 
-    it('TC-202-5 When requesting users by isActive=true, a list should be returned with users that are active', (done) => {
-        chai
-            .request(server)
-            .get('/api/user?isActive=true')
-            .set('authorization', 'Bearer ' + testToken)
-            .end((err, res) => {
-                let { status, result } = res.body
-                status.should.equal(200)
-                result.should.be.an('array')
-                result.every((i) => i.should.include({ isActive: true }))
-                done()
-            })
-    })
-
-    it('TC-202-6 When requesting a user by an existing name, one or more users should be returned', (done) => {
-        pool.query(INSERT_USER2, (function(err) {
-            if (err) throw err;
-            chai
-                .request(server)
-                .get('/api/user?firstName=first')
-                .set('authorization', 'Bearer ' + testToken)
-                .end((err, res) => {
-                    let { status, result } = res.body
-                    status.should.equal(200)
-                    result.should.be.an('array').that.is.not.empty
-                    result.every((i) => i.should.include({ firstName: 'first' }))
-                    done()
-                });
-        }));
-    });
+    
+    
 });
