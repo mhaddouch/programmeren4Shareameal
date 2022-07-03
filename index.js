@@ -15,6 +15,7 @@ app.all("*", (req, res, next) => {
   next();
 });
 app.use(userRouter);
+app.use(mealRouter);
 
 
 

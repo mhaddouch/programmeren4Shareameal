@@ -12,10 +12,10 @@ router.get("/", (req, res) => {
     });
   });
   
-  router.post("/api/user",userController.validateUser,userController.addUser);
+  router.post("/api/meal",userController.validateUser,userController.addUser);
 
   
-  router.get("/api/user", userController.getAllUsers);
+  router.get("/api/meal", userController.getAllUsers);
   
   router.get("/api/user/profile", (req, res) => {
     res.status(401).json({

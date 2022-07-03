@@ -62,7 +62,6 @@ let controller = {
       let user = req.body;
       logger.debug(`getAll aangeroepen. req.userId = ${req.userId}`)
  
-          
         dbconnection.getConnection(function(err, connection) {
           if (err){
             next(err)
