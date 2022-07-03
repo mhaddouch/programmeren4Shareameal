@@ -18,25 +18,44 @@ const dbconnection = require('../database/dbconnection');
 
 
 let controller = {
+    // validateUser:(req,res,next)=>{
+    //   let user = req.body;
+    //   let { firstName, lastName, street, city, isActive, emailAdress, phoneNumber, password } = user;
+    //   try {
+    //       assert(typeof firstName === 'string', 'firstName must be a string');
+    //       assert(typeof lastName === 'string', 'lastName must be a string');
+    //       assert(typeof street === 'string', 'street must be a string');
+    //       assert(typeof city === 'string', 'city must be a string');
+    //       assert(typeof isActive === 'number', 'IsActive must be a number');
+    //       assert(typeof emailAdress === 'string', 'emailAddress must be a string');
+    //       assert(typeof password === 'string', 'password must be a string');
+    //     } catch (err) {
+    //       const error={
+    //         status: 400,
+    //         message: err.message,
+    //       }
+    //         next(error);
+    //     }
+    // },
+
     validateUser:(req,res,next)=>{
       let user = req.body;
-      let { firstName, lastName, street, city, isActive, emailAdress, phoneNumber, password } = user;
+      let {firstName,lastName,emailAdress,password} = user;
+
       try {
-          assert(typeof firstName === 'string', 'firstName must be a string');
-          assert(typeof lastName === 'string', 'lastName must be a string');
-          assert(typeof street === 'string', 'street must be a string');
-          assert(typeof city === 'string', 'city must be a string');
-          assert(typeof isActive === 'number', 'IsActive must be a number');
-          assert(typeof emailAdress === 'string', 'emailAddress must be a string');
-          assert(typeof password === 'string', 'password must be a string');
-        } catch (err) {
-          const error={
-            status: 400,
-            message: err.message,
-          }
-            next(error);
+          assert(typeof firstName === 'string','firstName must be a string');
+          assert(typeof lastName === 'string','lastName must be a string');
+          assert(typeof emailAdress === 'string','emailAdress must be a string');
+          assert(typeof password === 'string','password must be a string');
+          next();
+      } catch (err) {
+        const error={
+          status: 400,
+          message:err.message,
         }
-    },
+          next(error);
+      }
+  },
 
     addUser:(req,res,next)=>{
 

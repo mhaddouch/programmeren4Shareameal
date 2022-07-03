@@ -98,7 +98,6 @@ describe('Manage users',()=>{
           street: "a",
           city: "b",
           roles: "editor",
-          emailAdress: "ngavans.nl",
           password: "D1mWW22!",
           phoneNumber: "0651234567",
         })
@@ -106,7 +105,7 @@ describe('Manage users',()=>{
             res.should.be.an('object')
             let{status,message} =  res.body;
             status.should.be.equals(400);
-            message.should.be.an('string').that.equals('emailAdress must be a string.');
+            message.should.be.an('string').that.equals('emailAdress must be a string');
         });
        done();
     });
@@ -145,7 +144,7 @@ describe('Manage users',()=>{
             roles: "editor",
             street: "a",
             city: "b",
-            emailAdress: "test@avans.nl",
+            emailAdress: "name@server.nl",
             password: "D1mwwVhTT22!",
             phoneNumber: "0651234567",
           })
@@ -169,9 +168,10 @@ describe('Manage users',()=>{
             street: 'unique 61',
             city: 'unique',
             isActive: 1,
-            emailAdress: 'unique.unique@example.com',
+            emailAdress: 'unique@example.com',
             phoneNumber: '0647113041',
             password: 'unique',
+            roles: '',
           })
           .end((err, res) => {
             res.should.be.an('object');
