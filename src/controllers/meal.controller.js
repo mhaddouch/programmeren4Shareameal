@@ -7,6 +7,8 @@ const server = require('../../index')
 const assert = require('assert')
 require('dotenv').config()
 const logger = require('../config/config').logger
+const jwtSecretKey = require('../config/config').jwtSecretKey
+const jwt = require('jsonwebtoken')
 
 chai.should()
 chai.use(chaiHttp)

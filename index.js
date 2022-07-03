@@ -5,6 +5,7 @@ const dbconnection = require("./src/database/dbconnection");
 const bodyParser = require('body-parser');
 const userRouter = require('./src/routes/user.routes');
 const mealRouter = require('./src/routes/meal.routes');
+const authRouter = require('./src/routes/auth.routes');
 const logger = require("./src/config/config").logger
 
 app.use(bodyParser.json());
@@ -17,6 +18,7 @@ app.all("*", (req, res, next) => {
 });
 app.use(userRouter);
 app.use(mealRouter);
+app.use(authRouter);
 
 
 

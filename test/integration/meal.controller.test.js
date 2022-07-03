@@ -7,6 +7,7 @@ const assert = require('assert');
 const pool = require("../../src/database/dbconnection");
 const index = require("../../index");
 const { logger } = require('../../src/config/config');
+const jwt = require("jsonwebtoken");
 require('dotenv').config()
 let database = [];
 chai.should();
